@@ -13,34 +13,34 @@ type ValidateRequest struct {
 }
 
 type Validator struct {
-	Valid bool `json:"valid"`
+	Valid  bool   `json:"valid"`
 	Reason string `json:"reason,omitempty"`
 }
 
 type ValidatorResponse struct {
-	Valid bool `json:"valid"`
+	Valid      bool                 `json:"valid"`
 	Validators map[string]Validator `json:"validators"`
 }
 
 type Validators map[string]func(email string) (bool, string)
 
 const (
-	ReasonRegexpMismatch  = "REGEXP_MISMATCH"
-	ReasonInvalidTLD      = "INVALID_TLD"
-	ReasonInvalidHostname = "INVALID_HOSTNAME"
-	ReasonUntrustedDomain = "UNTRUSTED_DOMAIN"
-	ReasonUnableToConnect = "UNABLE_TO_CONNECT"
-	ReasonTimeout         = "CONNECTION_TIMEOUT"
-	ReasonMailserverError = "MAILSERVER_ERROR"
+	ReasonRegexpMismatch     = "REGEXP_MISMATCH"
+	ReasonInvalidTLD         = "INVALID_TLD"
+	ReasonInvalidHostname    = "INVALID_HOSTNAME"
+	ReasonUntrustedDomain    = "UNTRUSTED_DOMAIN"
+	ReasonUnableToConnect    = "UNABLE_TO_CONNECT"
+	ReasonTimeout            = "CONNECTION_TIMEOUT"
+	ReasonMailserverError    = "MAILSERVER_ERROR"
 	ReasonUnavailableMailbox = "UNAVAILABLE_MAILBOX"
 )
 
 // TODO: Add specific validators order
 var validators = Validators{
-	"regexp": ValidateRegexp,
-	"domain": ValidateTLD,
+	"regexp":    ValidateRegexp,
+	"domain":    ValidateTLD,
 	"blacklist": ValidateBlacklist,
-	"smtp": ValidateSMTP,
+	"smtp":      ValidateSMTP,
 }
 
 var response ValidatorResponse
@@ -93,7 +93,6 @@ func validateEmail(email string) {
 		response.Valid = response.Valid && v
 	}
 }
-
 
 func main() {
 	log.Printf("Hello, World!")
