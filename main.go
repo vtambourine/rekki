@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 )
 
 type ValidateRequest struct {
@@ -68,7 +67,9 @@ func validate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := json.Marshal(v)
+	validateEmail(v.Email)
+
+	result, err := json.Marshal(response)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
@@ -99,18 +100,18 @@ func main() {
 
 	//email := "xxx@0058.ru"
 	//email := "vtambourine1231231231231234908fs@ya.ru"
-	email := "vtambourine@ya.ru"
-	validateEmail(email)
-
-	res, err := json.MarshalIndent(response, "", "  ")
-	if err != nil {
-		log.Println("err")
-		log.Fatal(err)
-	}
-
-	os.Stdout.Write(res)
-
-	//http.HandleFunc("/email/validate", validate)
+	//email := "vtambourine@ya.ru"
+	//validateEmail(email)
 	//
-	//log.Fatal(http.ListenAndServe(":8080", nil))
+	//res, err := json.MarshalIndent(response, "", "  ")
+	//if err != nil {
+	//	log.Println("err")
+	//	log.Fatal(err)
+	//}
+	//
+	//os.Stdout.Write(res)
+
+	http.HandleFunc("/email/validate", validate)
+
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }
