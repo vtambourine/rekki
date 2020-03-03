@@ -20,12 +20,8 @@ func init() {
 	}
 }
 
-func domain(email string) string {
-	return email[strings.Index(email, "@")+1:]
-}
-
 func ValidateBlacklist(email string) (bool, string) {
-	if _, ok := blacklistMap[domain(email)]; ok {
+	if _, ok := blacklistMap[hostname(email)]; ok {
 		return false, ReasonUntrustedDomain
 	}
 	return true, ""

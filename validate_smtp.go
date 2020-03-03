@@ -39,7 +39,7 @@ func dialMailbox(email string, mxList []*net.MX) (result string) {
 		defer c.Close()
 		defer c.Quit()
 
-		err := c.Hello(domain(email))
+		err := c.Hello(hostname(email))
 		if err != nil {
 			resChan <- ReasonMailserverError
 			return
@@ -81,7 +81,7 @@ func dialMailbox(email string, mxList []*net.MX) (result string) {
 }
 
 func ValidateSMTP(email string) (bool, string) {
-	mxList, err := net.LookupMX(domain(email))
+	mxList, err := net.LookupMX(hostname(email))
 	if err != nil || len(mxList) == 0 {
 		return false, ReasonInvalidHostname
 	}

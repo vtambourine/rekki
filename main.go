@@ -34,10 +34,10 @@ const (
 	ReasonUnavailableMailbox = "UNAVAILABLE_MAILBOX"
 )
 
-// TODO: Add specific validators order
+// TODO: Specify validators priority.
 var validators = Validators{
 	"regexp":    ValidateRegexp,
-	"domain":    ValidateTLD,
+	"hostname":    ValidateDomain,
 	"blacklist": ValidateBlacklist,
 	"smtp":      ValidateSMTP,
 }
@@ -85,7 +85,6 @@ func validateEmail(email string) {
 	response.Validators = make(map[string]Validator)
 
 	for name, validator := range validators {
-		log.Println(name)
 		v, r := validator(email)
 		response.Validators[name] = Validator{
 			Valid:  v,
@@ -96,22 +95,6 @@ func validateEmail(email string) {
 }
 
 func main() {
-	log.Printf("Hello, World!")
-
-	//email := "xxx@0058.ru"
-	//email := "vtambourine1231231231231234908fs@ya.ru"
-	//email := "vtambourine@ya.ru"
-	//validateEmail(email)
-	//
-	//res, err := json.MarshalIndent(response, "", "  ")
-	//if err != nil {
-	//	log.Println("err")
-	//	log.Fatal(err)
-	//}
-	//
-	//os.Stdout.Write(res)
-
 	http.HandleFunc("/email/validate", validate)
-
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }

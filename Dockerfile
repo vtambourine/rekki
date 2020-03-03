@@ -1,7 +1,7 @@
 FROM golang:1.14-alpine AS build
 WORKDIR /go/src/app/rekki
 COPY . .
-RUN GOOS=linux go build -ldflags="-s -w" -o ./app ./*.go
+RUN GOOS=linux go build -ldflags="-s -w" -o ./app .
 
 FROM alpine
 RUN apk --no-cache add ca-certificates
