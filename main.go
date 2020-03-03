@@ -69,7 +69,7 @@ func validate(w http.ResponseWriter, r *http.Request) {
 
 	validateEmail(v.Email)
 
-	result, err := json.Marshal(response)
+	result, err := json.MarshalIndent(response, "", "  ")
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
