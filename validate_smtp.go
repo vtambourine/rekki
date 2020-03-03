@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"net"
 	"net/smtp"
@@ -13,28 +12,28 @@ var defaultDialer = net.Dialer{}
 var defaultPort = 25
 var defaultFromEmail = "noreply@rekki.com"
 
-func dialMailbox(email string, mxList []*net.MX) (err error) {
+func dialMailbox(email string, mxList []*net.MX) (result string) {
 	var c *smtp.Client
 	for _, mx := range mxList {
 		conn, err := defaultDialer.Dial("tcp", fmt.Sprintf("%v:%v", mx.Host, defaultPort))
 		if t, ok := err.(*net.OpError); ok {
 			if t.Timeout() {
-				return errors.New(ReasonTimeout)
+				return ReasonTimeout
 			}
-			return errors.New(ReasonUnableToConnect)
+			return ReasonUnableToConnect
 		} else if err != nil {
-			return errors.New(ReasonMailserverError)
+			return ReasonMailserverError
 		}
 		c, err = smtp.NewClient(conn, mx.Host)
 		if err == nil {
 			break
 		}
 		if c == nil {
-			return errors.New(ReasonMailserverError)
+			return ReasonMailserverError
 		}
 	}
 
-	resChan := make(chan error, 1)
+	resChan := make(chan string, 1)
 
 	go func() {
 		defer c.Close()
@@ -42,19 +41,19 @@ func dialMailbox(email string, mxList []*net.MX) (err error) {
 
 		err := c.Hello(domain(email))
 		if err != nil {
-			resChan <- errors.New(ReasonMailserverError)
+			resChan <- ReasonMailserverError
 			return
 		}
 
 		err = c.Mail(defaultFromEmail)
 		if err != nil {
-			resChan <- errors.New(ReasonMailserverError)
+			resChan <- ReasonMailserverError
 			return
 		}
 
 		id, err := c.Text.Cmd("RCPT TO:<%s>", email)
 		if err != nil {
-			resChan <- errors.New(ReasonMailserverError)
+			resChan <- ReasonMailserverError
 			return
 		}
 
@@ -63,16 +62,16 @@ func dialMailbox(email string, mxList []*net.MX) (err error) {
 		c.Text.EndResponse(id)
 
 		if code == 550 {
-			resChan <- errors.New(ReasonUnavailableMailbox)
+			resChan <- ReasonUnavailableMailbox
 			return
 		}
 
 		if err != nil {
-			resChan <- errors.New(ReasonMailserverError)
+			resChan <- ReasonMailserverError
 			return
 		}
 
-		resChan <- nil
+		resChan <- ""
 	}()
 
 	select {
@@ -84,14 +83,11 @@ func dialMailbox(email string, mxList []*net.MX) (err error) {
 func ValidateSMTP(email string) (bool, string) {
 	mxList, err := net.LookupMX(domain(email))
 	if err != nil || len(mxList) == 0 {
-		//log.Println("First stop")
 		return false, ReasonInvalidHostname
 	}
-	//log.Println(mxList)
-	err = dialMailbox(email, mxList)
-	if err != nil {
-		//log.Println("Something went wrong", err)
-		return false, err.Error()
+	res := dialMailbox(email, mxList)
+	if res != "" {
+		return false, res
 	}
 
 	return true, ""
