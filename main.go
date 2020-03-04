@@ -88,6 +88,7 @@ func validateEmail(email string) {
 	response.Validators = make(map[string]Validator)
 
 	// TODO: Do not runs all validation checks independently. Possibly return on first fail.
+	// TODO: Run independent validators in parallel, for instance, with `sync.WaitGroup`.
 	for name, validator := range validators {
 		v, r := validator(email)
 		response.Validators[name] = Validator{
