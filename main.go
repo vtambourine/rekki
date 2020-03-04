@@ -30,7 +30,7 @@ const (
 	ReasonUntrustedDomain    = "UNTRUSTED_DOMAIN"
 	ReasonUnableToConnect    = "UNABLE_TO_CONNECT"
 	ReasonTimeout            = "CONNECTION_TIMEOUT"
-	ReasonMailserverError    = "MAILSERVER_ERROR"
+	ReasonMailServerError    = "MAIL_SERVER_ERROR"
 	ReasonUnavailableMailbox = "UNAVAILABLE_MAILBOX"
 )
 
@@ -67,14 +67,17 @@ func validate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Validate passed email
 	validateEmail(v.Email)
 
+	// Render result
 	result, err := json.MarshalIndent(response, "", "  ")
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
 	}
 
+	// Return validation result
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
 	w.Write(result)
@@ -84,6 +87,7 @@ func validateEmail(email string) {
 	response.Valid = true
 	response.Validators = make(map[string]Validator)
 
+	// TODO: Do not runs all validation checks independently. Possibly return on first fail.
 	for name, validator := range validators {
 		v, r := validator(email)
 		response.Validators[name] = Validator{
