@@ -37,7 +37,7 @@ const (
 // TODO: Specify validators priority.
 var validators = Validators{
 	"regexp":    ValidateRegexp,
-	"hostname":    ValidateDomain,
+	"hostname":  ValidateDomain,
 	"blacklist": ValidateBlacklist,
 	"smtp":      ValidateSMTP,
 }
